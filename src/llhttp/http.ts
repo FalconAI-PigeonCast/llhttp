@@ -274,7 +274,7 @@ export class HTTP {
     );
 
     n('start_req_or_res')
-      .peek('H', this.span.method.start(n('req_or_res_method')))
+      .peek(['H', 'R'], this.span.method.start(n('req_or_res_method')))
       .otherwise(this.update('type', TYPE.REQUEST, 'start_req'));
 
     n('req_or_res_method')
@@ -283,7 +283,7 @@ export class HTTP {
           this.invokePausable('on_method_complete', ERROR.CB_METHOD_COMPLETE, n('req_first_space_before_url')),
         )),
       ))
-      .match('HTTP/', this.span.method.end(this.update('type', TYPE.RESPONSE,
+      .match(['HTTP/', 'RTSP/'], this.span.method.end(this.update('type', TYPE.RESPONSE,
         this.span.version.start(n('res_http_major')))))
       .otherwise(p.error(ERROR.INVALID_CONSTANT, 'Invalid word encountered'));
 
@@ -316,7 +316,7 @@ export class HTTP {
 
     // Response
     n('start_res')
-      .match('HTTP/', span.version.start(n('res_http_major')))
+      .match(['HTTP/', 'RTSP/'], span.version.start(n('res_http_major')))
       .otherwise(p.error(ERROR.INVALID_CONSTANT, 'Expected HTTP/'));
 
     n('res_http_major')
